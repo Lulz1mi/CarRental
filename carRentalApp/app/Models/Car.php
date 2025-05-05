@@ -7,6 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 class Car extends Model
 {
     /**
+     * Mos përdor created_at dhe updated_at
+     */
+    public $timestamps = false;
+
+    /**
      * Fushat që lejohen për mass assignment
      */
     protected $fillable = [
