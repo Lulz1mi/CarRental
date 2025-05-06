@@ -19,14 +19,15 @@ class CarController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'Brand' => 'required|string|max:255',
-            'Model' => 'required|string|max:255',
+            'Brand' => 'required|string|max:255',         // Ndryshimi nga 'Brand' në 'brand'
+            'Model' => 'required|string|max:255',         // Ndryshimi nga 'Model' në 'model'
             'Year' => 'required|integer|min:1900|max:' . date('Y'),
             'price_per_day' => 'required|numeric|min:0',
             'fuel_type' => 'required|string|max:50',
             'transmission' => 'required|string|max:50',
             'image_url' => 'nullable|url',
         ]);
+        
 
         if ($validator->fails()) {
             return response()->json([
@@ -61,14 +62,15 @@ class CarController extends Controller
         }
 
         $validator = Validator::make($request->all(), [
-            'Brand' => 'sometimes|required|string|max:255',
-            'Model' => 'sometimes|required|string|max:255',
-            'Year' => 'sometimes|required|integer|min:1900|max:' . date('Y'),
-            'price_per_day' => 'sometimes|required|numeric|min:0',
-            'fuel_type' => 'sometimes|required|string|max:50',
-            'transmission' => 'sometimes|required|string|max:50',
+            'Brand' => 'required|string|max:255',         // Ndryshimi nga 'Brand' në 'brand'
+            'Model' => 'required|string|max:255',         // Ndryshimi nga 'Model' në 'model'
+            'Year' => 'required|integer|min:1900|max:' . date('Y'),
+            'price_per_day' => 'required|numeric|min:0',
+            'fuel_type' => 'required|string|max:50',
+            'transmission' => 'required|string|max:50',
             'image_url' => 'nullable|url',
         ]);
+        
 
         if ($validator->fails()) {
             return response()->json([
@@ -77,7 +79,6 @@ class CarController extends Controller
         }
 
         $car->update($validator->validated());
-
         return response()->json($car);
     }
 
@@ -90,7 +91,7 @@ class CarController extends Controller
             return response()->json(['message' => 'Car not found'], 404);
         }
 
-        $car->forceDelete();
+        $car->delete();
 
 
         return response()->json(['message' => 'Car deleted successfully']);
