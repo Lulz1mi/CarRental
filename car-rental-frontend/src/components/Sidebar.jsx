@@ -7,6 +7,7 @@ export default function Sidebar() {
       <nav className="flex flex-col gap-4">
         <Link to="/" className="hover:bg-gray-700 p-2 rounded">Dashboard</Link>
         <Link to="/cars" className="hover:bg-gray-700 p-2 rounded">Makinat</Link>
+        <Link to="/payments" className="hover:bg-gray-700 p-2 rounded">Payments</Link> {/* Link për Payments */}
       </nav>
     </div>
   );

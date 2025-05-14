@@ -1,9 +1,7 @@
 export default function Dashboard() {
-    return (
-      <div>
-        <h1 className="text-2xl font-bold mb-4">Mirë se vini në Dashboard!</h1>
-        <p className="text-gray-700">Këtu mund të menaxhoni makinën tuaj me CRUD operacione.</p>
-      </div>
-    );
-  }
-  
+  return (
+    <div className="bg-blue-500 text-white p-10 rounded-xl text-center text-2xl">
+      Kjo është dashboardi me Tailwind CSS! 🚀
+    </div>
+  );
+}

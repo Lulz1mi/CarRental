@@ -3,7 +3,7 @@ import Sidebar from "./components/Sidebar";
 import Navbar from "./components/Navbar";
 import Dashboard from "./pages/Dashboard";
 import Cars from "./pages/Cars";
-import CarList from './CarList';
+import PaymentDashboard from "./pages/PaymentDashboard";  // Importo PaymentDashboard
 
 function App() {
   return (
@@ -16,6 +16,7 @@ function App() {
             <Routes>
               <Route path="/" element={<Dashboard />} />
               <Route path="/cars" element={<Cars />} />
+              <Route path="/payments" element={<PaymentDashboard />} /> {/* Shtuar rruga për PaymentDashboard */}
             </Routes>
           </div>
         </div>

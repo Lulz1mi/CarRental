@@ -119,9 +119,8 @@ return [
     */
 
     'maintenance' => [
-    'driver' => 'file',
-],
-
+        'driver' => 'file',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -138,6 +137,7 @@ return [
         Illuminate\Bus\BusServiceProvider::class,
         Illuminate\Cache\CacheServiceProvider::class,
         Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
+        Illuminate\Database\DatabaseServiceProvider::class,   // ← Shtoje këtë rresht
         Illuminate\Encryption\EncryptionServiceProvider::class,
         Illuminate\Filesystem\FilesystemServiceProvider::class,
         Illuminate\Hashing\HashServiceProvider::class,
