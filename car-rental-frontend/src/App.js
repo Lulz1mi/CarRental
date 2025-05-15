@@ -1,19 +1,42 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Sidebar from "./components/Sidebar";
+import Navbar from "./components/Navbar";
+import Dashboard from "./pages/Dashboard";
 import Cars from "./pages/Cars";
-import CarInsert from "./components/CarInsert";
-import CarUpdate from "./components/CarUpdate";
+import PaymentDashboard from "./pages/PaymentDashboard";
+import Login from "./pages/Login.jsx";
+import Register from "./pages/Register.jsx";
+import Profile from "./pages/Profile.jsx";
 
 function App() {
   return (
     <Router>
-      <div className="p-6 bg-gray-100 min-h-screen">
-        {/* Përdor CarInsert dhe CarUpdate direkt në rrugë të ndryshme ose brenda Cars */}
-        <Routes>
-          <Route path="/cars" element={<Cars />} />
-          <Route path="/cars/insert" element={<CarInsert />} />
-          <Route path="/cars/update/:id" element={<CarUpdate />} />
-        </Routes>
-      </div>
+      <Routes>
+        {/* Rrugët pa layout (pa sidebar dhe navbar) */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Rrugët me layout */}
+        <Route
+          path="*"
+          element={
+            <div className="flex">
+              <Sidebar />
+              <div className="flex-1 flex flex-col">
+                <Navbar />
+                <div className="p-6 bg-gray-100 min-h-screen">
+                  <Routes>
+                    <Route path="/" element={<Dashboard />} />
+                    <Route path="/cars" element={<Cars />} />
+                    <Route path="/payments" element={<PaymentDashboard />} />
+                    <Route path="/profile" element={<Profile />} />
+                  </Routes>
+                </div>
+              </div>
+            </div>
+          }
+        />
+      </Routes>
     </Router>
   );
 }
