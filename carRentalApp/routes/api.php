@@ -1,31 +1,48 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CarController;
+use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\UserController;  // Shtuar importi i UserController
 
 /*
 |--------------------------------------------------------------------------
 | Public Routes
 |--------------------------------------------------------------------------
 */
+
+// Auth routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Public route për të marrë listën e makinave
+// Public routes për makina
 Route::get('/cars', [CarController::class, 'index']);
 Route::get('/cars/{car}', [CarController::class, 'show']);
 
-// Public route për të shtuar, ndryshuar dhe fshirë makina
-Route::post('/cars', [CarController::class, 'store']); // Për të shtuar makinë
-Route::put('/cars/{car}', [CarController::class, 'update']); // Për të ndryshuar makinë
-Route::delete('/cars/{car}', [CarController::class, 'destroy']); // Për të fshirë makinë
+// Public routes për përdoruesit  <-- Shtuar kjo rrugë
+Route::get('/users', [UserController::class, 'index']);
+
+// Public routes për shtim, ndryshim dhe fshirje të makinave
+Route::post('/cars', [CarController::class, 'store']);
+Route::put('/cars/{car}', [CarController::class, 'update']);
+Route::delete('/cars/{car}', [CarController::class, 'destroy']);
+
+// Payments API
+Route::apiResource('payments', PaymentController::class);
+Route::delete('payments/{id}', [PaymentController::class, 'destroy']); // Opsional nëse dëshiron ta mbash veçmas
+Route::put('/payments/{id}', [PaymentController::class, 'update']);
+
+Route::delete('/users/{id}', [UserController::class, 'destroy']);
+
 
 /*
 |--------------------------------------------------------------------------
-| Routes për Logout dhe Profile
+| Routes që kërkojnë autentifikim
 |--------------------------------------------------------------------------
 */
-// Për logout dhe profile nuk është e nevojshme autentifikimi
-Route::post('/logout', [AuthController::class, 'logout']);
-Route::middleware('auth:sanctum')->get('/profile', [AuthController::class, 'profile']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::get('/profile', [AuthController::class, 'profile']);
+});
