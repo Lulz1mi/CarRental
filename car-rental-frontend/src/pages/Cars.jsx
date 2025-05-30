@@ -3,7 +3,6 @@ import axios from 'axios';
 import CarUpdate from '../components/CarUpdate';
 import CarInsert from '../components/CarInsert';
 
-
 const Cars = () => {
   const [cars, setCars] = useState([]);
   const [showUpdateModal, setShowUpdateModal] = useState(false);
@@ -14,6 +13,7 @@ const Cars = () => {
     const fetchCars = async () => {
       try {
         const response = await axios.get('http://localhost:8000/api/cars');
+        console.log('Te dhenat nga API:', response.data);
         setCars(response.data);
       } catch (error) {
         console.error('Gabim gjatë marrjes së të dhënave:', error);
@@ -24,7 +24,7 @@ const Cars = () => {
   }, []);
 
   const handleUpdate = (id) => {
-    const car = cars.find(c => c.id === id);
+    const car = cars.find(c => c.Id === id);
     setSelectedCar(car);
     setShowUpdateModal(true);
   };
@@ -39,7 +39,7 @@ const Cars = () => {
     if (confirmed) {
       try {
         await axios.delete(`http://localhost:8000/api/cars/${id}`);
-        setCars(cars.filter(car => car.id !== id));
+        setCars(cars.filter(car => car.Id !== id));
       } catch (error) {
         console.error('Gabim gjatë fshirjes së makinës:', error);
       }
@@ -51,41 +51,79 @@ const Cars = () => {
   };
 
   return (
-    <div className="container">
-      <h2>CarRental</h2>
-      <button className="btn btn-success" onClick={() => setShowInsertModal(true)}>Shto Makinë</button>
-      <table className="table">
-        <thead>
-          <tr>
-            <th>Marka</th>
-            <th>Modeli</th>
-            <th>Viti</th>
-            <th>Çmimi për Ditë</th>
-            <th>Tipi i Karburantit</th>
-            <th>Transmisioni</th>
-            <th>Veprimet</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cars.map((car) => (
-            <tr key={car.id}>
-              <td>{car.Brand}</td>
-              <td>{car.Model}</td>
-              <td>{car.Year}</td>
-              <td>{car.price_per_day}</td>
-              <td>{car.fuel_type}</td>
-              <td>{car.transmission}</td>
-              <td>
-                <button className="btn btn-primary me-2" onClick={() => handleUpdate(car.id)}>Përditëso</button>
-                <button className="btn btn-danger" onClick={() => handleDelete(car.id)}>Fshi</button>
-              </td>
+    <div className="max-w-7xl mx-auto px-4 py-8">
+      <h2 className="text-3xl font-bold mb-6 text-gray-800">CarRental</h2>
+      <button
+        className="mb-6 px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700 transition"
+        onClick={() => setShowInsertModal(true)}
+      >
+        Shto Makinë
+      </button>
+      <div className="overflow-x-auto">
+        <table className="min-w-full border border-gray-200">
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="px-4 py-2 text-left">Marka</th>
+              <th className="px-4 py-2 text-left">Modeli</th>
+              <th className="px-4 py-2 text-left">Viti</th>
+              <th className="px-4 py-2 text-left">Çmimi për Ditë</th>
+              <th className="px-4 py-2 text-left">Tipi i Karburantit</th>
+              <th className="px-4 py-2 text-left">Transmisioni</th>
+              <th className="px-4 py-2 text-left">Fotografia</th>
+              <th className="px-4 py-2 text-left">Veprimet</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {cars.map((car) => (
+              <tr key={car.Id} className="border-t">
+                <td className="px-4 py-2">{car.brand}</td>
+                <td className="px-4 py-2">{car.model}</td>
+                <td className="px-4 py-2">{car.year}</td>
+                <td className="px-4 py-2">{car.price_per_day} €</td>
+                <td className="px-4 py-2">{car.fuel_type}</td>
+                <td className="px-4 py-2">{car.transmission}</td>
+                <td className="px-4 py-2">
+                  {car.image ? (
+                    <img
+                      src={`http://localhost:8000/${car.image_url}`}
+                      alt="Makina"
+                      className="h-16 w-auto rounded mx-auto object-cover"
+                    />
+                  ) : (
+                    <span className="text-gray-400 italic">Pa foto</span>
+                  )}
+                </td>
+                <td className="px-4 py-2 space-x-2">
+                  <button
+                    className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                    onClick={() => handleUpdate(car.Id)}
+                  >
+                    Përditëso
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-red-600 text-white rounded hover:bg-red-700 transition"
+                    onClick={() => handleDelete(car.Id)}
+                  >
+                    Fshi
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
-      <CarUpdate show={showUpdateModal} handleClose={handleCloseUpdateModal} selectedCar={selectedCar} setCars={setCars} />
-      <CarInsert show={showInsertModal} handleClose={handleCloseInsertModal} setCars={setCars} />
+      <CarUpdate
+        show={showUpdateModal}
+        handleClose={handleCloseUpdateModal}
+        selectedCar={selectedCar}
+        setCars={setCars}
+      />
+      <CarInsert
+        show={showInsertModal}
+        handleClose={handleCloseInsertModal}
+        setCars={setCars}
+      />
     </div>
   );
 };

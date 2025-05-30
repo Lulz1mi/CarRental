@@ -22,9 +22,19 @@ const CarList = () => {
     // Këtu mund të hapësh një formë për editim ose navigim te një faqe tjetër
   };
 
-  const handleDelete = (id) => {
-    console.log('Fshij makinën me ID:', id);
-    // Mund të shtosh axios.delete për ta fshirë nga API në backend
+  const handleDelete = async (id) => {
+    const confirmed = window.confirm("A jeni të sigurt që dëshironi të fshini këtë makinë?");
+    if (confirmed) {
+      console.log('Fshij makinën me ID:', id);
+      try {
+        const response = await axios.delete(`http://localhost:8000/api/cars/${id}`);
+        console.log('Përgjigja nga backend:', response.data);
+        // Përshtatja e listës së makinave pasi makina është fshirë
+        setCars(cars.filter(car => car.id !== id));
+      } catch (error) {
+        console.error('Gabim gjatë fshirjes së makinës:', error.response?.data || error.message);
+      }
+    }
   };
 
   if (loading) {

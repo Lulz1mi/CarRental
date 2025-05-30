@@ -1,19 +1,18 @@
-import axios from 'axios';
-
-const API_URL = "http://localhost:8000/api/cars"; // ndrro nëse ke backend në URL tjetër
+// src/services/carService.js
+import apiClient from './apiClient';
 
 export const getCars = async () => {
-    return await axios.get(API_URL);
+  return await apiClient.get('/cars');
 };
 
 export const createCar = async (carData) => {
-    return await axios.post(API_URL, carData);
+  return await apiClient.post('/cars', carData);
 };
 
 export const updateCar = async (id, carData) => {
-    return await axios.put(`${API_URL}/${id}`, carData);
+  return await apiClient.put(`/cars/${id}`, carData);
 };
 
 export const deleteCar = async (id) => {
-    return await axios.delete(`${API_URL}/${id}`);
+  return await apiClient.delete(`/cars/${id}`);
 };

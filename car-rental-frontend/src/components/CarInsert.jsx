@@ -9,17 +9,18 @@ const CarInsert = ({ show, handleClose, setCars }) => {
     price_per_day: '',
     fuel_type: '',
     transmission: '',
+    image_url: '', // Fusha për URL e imazhit
   });
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleInsert = async () => {
     try {
       const response = await axios.post('http://localhost:8000/api/cars', formData);
-      setCars(prevCars => [...prevCars, response.data]);
+      setCars((prevCars) => [...prevCars, response.data]);
       handleClose();
     } catch (error) {
       console.error('Gabim gjatë shtimit të makinës:', error.response?.data || error.message);
@@ -37,13 +38,14 @@ const CarInsert = ({ show, handleClose, setCars }) => {
             </button>
           </div>
           <div className="modal-body">
-            {[
+            {[ 
               { label: 'Brand', name: 'brand' },
               { label: 'Model', name: 'model' },
               { label: 'Year', name: 'year', type: 'number' },
               { label: 'Price Per Day', name: 'price_per_day', type: 'number' },
               { label: 'Fuel Type', name: 'fuel_type' },
               { label: 'Transmission', name: 'transmission' },
+              { label: 'Image URL', name: 'image_url', type: 'url' }, // Fusha për imazhin
             ].map(({ label, name, type = 'text' }) => (
               <div className="form-group" key={name}>
                 <label htmlFor={name}>{label}:</label>

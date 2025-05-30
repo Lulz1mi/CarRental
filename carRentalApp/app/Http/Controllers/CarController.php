@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Car;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class CarController extends Controller
 {
@@ -19,9 +20,9 @@ class CarController extends Controller
     public function store(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'Brand' => 'required|string|max:255',         // Ndryshimi nga 'Brand' në 'brand'
-            'Model' => 'required|string|max:255',         // Ndryshimi nga 'Model' në 'model'
-            'Year' => 'required|integer|min:1900|max:' . date('Y'),
+            'brand' => 'required|string|max:255',         // Ndryshimi nga 'Brand' në 'brand'
+            'model' => 'required|string|max:255',         // Ndryshimi nga 'Model' në 'model'
+            'year' => 'required|integer|min:1900|max:' . date('Y'),
             'price_per_day' => 'required|numeric|min:0',
             'fuel_type' => 'required|string|max:50',
             'transmission' => 'required|string|max:50',
@@ -54,46 +55,56 @@ class CarController extends Controller
 
     // Përditëso një veturë ekzistuese
     public function update(Request $request, $id)
-    {
-        $car = Car::find($id);
+{
+    $updated = DB::table('cars')->where('id', $id)->update([
+        'brand' => $request->brand,
+        'model' => $request->model,
+        'year' => $request->year,
+        'price_per_day' => $request->price_per_day,
+        'fuel_type' => $request->fuel_type,
+        'transmission' => $request->transmission,
+        'image_url' => $request->image_url,
+    ]);
 
-        if (!$car) {
-            return response()->json(['message' => 'Car not found'], 404);
-        }
+    return response()->json([
+        'message' => $updated ? 'Car updated successfully' : 'Update failed',
+        'updated' => $updated
+    ]);
+}
 
-        $validator = Validator::make($request->all(), [
-            'Brand' => 'required|string|max:255',         // Ndryshimi nga 'Brand' në 'brand'
-            'Model' => 'required|string|max:255',         // Ndryshimi nga 'Model' në 'model'
-            'Year' => 'required|integer|min:1900|max:' . date('Y'),
-            'price_per_day' => 'required|numeric|min:0',
-            'fuel_type' => 'required|string|max:50',
-            'transmission' => 'required|string|max:50',
-            'image_url' => 'nullable|url',
-        ]);
-        
-
-        if ($validator->fails()) {
-            return response()->json([
-                'errors' => $validator->errors(),
-            ], 422);
-        }
-
-        $car->update($validator->validated());
-        return response()->json($car);
-    }
 
     // Fshij një veturë
-    public function destroy($id)
-    {
-        $car = Car::find($id);
+// public function destroy($id)
+// {
+//     $car = Car::find($id);
 
-        if (!$car) {
-            return response()->json(['message' => 'Car not found'], 404);
-        }
+//     if (!$car) {
+//         return response()->json(['message' => 'Car not found'], 404);
+//     }
 
-        $car->delete();
+//     try {
+//         // Fshirje e përhershme nëse ka SoftDeletes
+//         $car->forceDelete();
 
+//         return response()->json(['message' => 'Car deleted successfully']);
+//     } catch (\Exception $e) {
+//         // Logojmë gabimin në log file për analizë
+//         Log::error('Car deletion failed: '.$e->getMessage());
 
+//         return response()->json([
+//             'message' => 'Failed to delete car',
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }
+// }
+public function destroy($id)
+{
+    $deleted = DB::table('cars')->where('id', $id)->delete();
+
+    if ($deleted) {
         return response()->json(['message' => 'Car deleted successfully']);
+    } else {
+        return response()->json(['message' => 'Car not found or not deleted'], 404);
     }
+}
 }

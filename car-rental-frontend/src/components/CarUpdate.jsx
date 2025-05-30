@@ -9,6 +9,7 @@ const CarUpdate = ({ show, handleClose, selectedCar, setCars }) => {
     price_per_day: '',
     fuel_type: '',
     transmission: '',
+    image_url: ''
   });
 
   useEffect(() => {
@@ -20,6 +21,7 @@ const CarUpdate = ({ show, handleClose, selectedCar, setCars }) => {
         price_per_day: selectedCar.price_per_day || '',
         fuel_type: selectedCar.fuel_type || '',
         transmission: selectedCar.transmission || '',
+        image_url: selectedCar.image_url || ''
       });
     }
   }, [selectedCar]);
@@ -31,8 +33,12 @@ const CarUpdate = ({ show, handleClose, selectedCar, setCars }) => {
 
   const handleUpdate = async () => {
     try {
-      const response = await axios.put(`http://localhost:8000/api/cars/${selectedCar.id}`, formData);
-      setCars(prevCars => prevCars.map(car => (car.id === selectedCar.id ? response.data : car)));
+      const response = await axios.put(`http://localhost:8000/api/cars/${selectedCar.Id}`, formData);
+      setCars(prevCars =>
+        prevCars.map(car =>
+          car.Id === selectedCar.Id ? response.data : car
+        )
+      );
       handleClose();
     } catch (error) {
       console.error('Gabim gjatë përditësimit të makinës:', error.response?.data || error.message);
@@ -57,6 +63,7 @@ const CarUpdate = ({ show, handleClose, selectedCar, setCars }) => {
               { label: 'Price Per Day', name: 'price_per_day', type: 'number' },
               { label: 'Fuel Type', name: 'fuel_type' },
               { label: 'Transmission', name: 'transmission' },
+              { label: 'Image URL', name: 'image_url' }
             ].map(({ label, name, type = 'text' }) => (
               <div className="form-group" key={name}>
                 <label htmlFor={name}>{label}:</label>

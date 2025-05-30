@@ -30,7 +30,7 @@ Route::delete('/cars/{car}', [CarController::class, 'destroy']);
 
 // Payments API
 Route::apiResource('payments', PaymentController::class);
-Route::delete('payments/{id}', [PaymentController::class, 'destroy']); // Opsional nëse dëshiron ta mbash veçmas
+Route::delete('payments/{Payment_id}', [PaymentController::class, 'destroy']); // Opsional nëse dëshiron ta mbash veçmas
 Route::put('/payments/{id}', [PaymentController::class, 'update']);
 
 Route::delete('/users/{id}', [UserController::class, 'destroy']);

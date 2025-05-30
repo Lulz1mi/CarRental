@@ -81,9 +81,9 @@ class PaymentController extends Controller
 
 
     // Fshij një pagesë
-    public function destroy($id)
+    public function destroy($Payment_id)
 {
-    $deleted = DB::table('payments')->where('payment_id', $id)->delete();
+    $deleted = DB::table('payments')->where('Payment_id', $Payment_id)->delete();
 
     if ($deleted) {
         return response()->json(['message' => 'Payment deleted successfully']);

@@ -33,7 +33,8 @@ class AuthController extends Controller
     $user = User::create([
         'name' => $validated['name'],
         'email' => $validated['email'],
-        'password' => Hash::make($validated['password']),
+        // 'password' => Hash::make($validated['password']),
+        'password' => $validated['password'],
         'phone' => $validated['phone'] ?? null,
         'role' => 'user', // Vendosim gjithmonë rolin "user"
     ]);
@@ -47,44 +48,33 @@ class AuthController extends Controller
 }
 
     // Login i përdoruesve
-   public function login(Request $request)
+ public function login(Request $request)
 {
-    // Validimi i të dhënave
     $validator = Validator::make($request->all(), [
         'email' => 'required|email',
         'password' => 'required',
     ]);
 
     if ($validator->fails()) {
-        return response()->json([
-            'errors' => $validator->errors()
-        ], 422);
+        return response()->json(['errors' => $validator->errors()], 422);
     }
 
-    // Gjej përdoruesin me email
-    $user = \App\Models\User::where('email', $request->email)->first();
+    $user = User::where('email', $request->email)->first();
 
-    // Kontrolloni që përdoruesi është i gjetur
     if (!$user) {
-        return response()->json([
-            'message' => 'Përdoruesi nuk u gjet.'
-        ], 404);
+        return response()->json(['message' => 'Përdoruesi nuk u gjet.'], 404);
     }
 
-    // Kontrolloni që fjalëkalimi është i saktë
     if (!Hash::check($request->password, $user->password)) {
-        return response()->json([
-            'message' => 'Të dhënat e hyrjes janë të pasakta. Fjalëkalimi nuk përputhet.'
-        ], 401);
+        return response()->json(['message' => 'Fjalëkalimi nuk përputhet.'], 401);
     }
 
-    // Krijo token-in
     $token = $user->createToken('auth_token')->plainTextToken;
 
     return response()->json([
         'access_token' => $token,
         'token_type' => 'Bearer',
-        'user' => $user,
+        'user' => $user->toArray(),
     ]);
 }
 

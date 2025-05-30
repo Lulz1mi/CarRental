@@ -18,9 +18,9 @@ class Car extends Model
      * Fushat që lejohen për mass assignment
      */
     protected $fillable = [
-        'Brand',         // Marka
-        'Model',         // Modeli
-        'Year',          // Viti
+        'brand',         // Marka
+        'model',         // Modeli
+        'year',          // Viti
         'price_per_day', // Çmimi për Ditë
         'fuel_type',     // Tipi i Karburantit
         'transmission',  // Transmisioni

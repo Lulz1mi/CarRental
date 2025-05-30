@@ -6,18 +6,18 @@ const API = axios.create({
 });
 
 // Funksioni për logimin
-export const login = async (email, password) => {
+export const login = async ({ email, password }) => {
   const response = await API.post('/login', {
     email,
     password,
   });
 
-  // ruaj token-in në localStorage ose state manager
   const token = response.data.token;
   localStorage.setItem('token', token);
 
   return response.data;
 };
+
 
 // Funksioni për regjistrimin
 export const register = async (userData) => {
