@@ -1,4 +1,3 @@
-// auth.js
 import axios from 'axios';
 
 const API = axios.create({
@@ -15,19 +14,25 @@ export const login = async ({ email, password }) => {
   const token = response.data.token;
   localStorage.setItem('token', token);
 
-  return response.data;
-};
+  // Merr profilin pas login-it dhe ruaje në localStorage
+  const profile = await getProfile();
+  localStorage.setItem('user', JSON.stringify(profile));
 
+  return { token, user: profile };
+};
 
 // Funksioni për regjistrimin
 export const register = async (userData) => {
   const response = await API.post('/register', userData);
 
-  // ruaj token-in në localStorage ose state manager pas regjistrimit
   const token = response.data.token;
   localStorage.setItem('token', token);
 
-  return response.data;
+  // Merr profilin pas regjistrimit dhe ruaje në localStorage
+  const profile = await getProfile();
+  localStorage.setItem('user', JSON.stringify(profile));
+
+  return { token, user: profile };
 };
 
 // Funksioni për marrjen e të dhënave të profilit të përdoruesit
@@ -41,6 +46,21 @@ export const getProfile = async () => {
     return response.data;
   } catch (error) {
     console.error("Gabim gjatë marrjes së të dhënave të profilit:", error);
-    throw error; // Mund ta trajtoni gabimin më tej në komponentin tuaj
+    throw error;
+  }
+};
+
+// Funksioni për rezervimin e makinës (book car)
+export const bookCar = async (bookingData) => {
+  try {
+    const response = await API.post('/bookings', bookingData, {
+      headers: {
+        Authorization: `Bearer ${localStorage.getItem('token')}`,
+      },
+    });
+    return response.data;
+  } catch (error) {
+    console.error('Gabim gjatë rezervimit:', error.response || error.message);
+    throw error;
   }
 };

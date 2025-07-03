@@ -1,20 +1,19 @@
-// import React from "react";
-// import { Navigate, Outlet } from "react-router-dom";
+import React from 'react';
+import { Navigate } from 'react-router-dom';
 
-// const PrivateRoute = ({ children, allowedRoles }) => {
-//   const token = localStorage.getItem("token");
-//   const role = localStorage.getItem("role");
+const PrivateRoute = ({ children, onlyAdmin = false }) => {
+  const token = localStorage.getItem('token');
+  const user = JSON.parse(localStorage.getItem('user'));
 
-//   if (!token) {
-//     return <Navigate to="/login" />;
-//   }
+  if (!token) {
+    return <Navigate to="/login" replace />;
+  }
 
-//   if (allowedRoles && !allowedRoles.includes(role)) {
-//     // Ridrejto në home ose dashboard sipas rastit
-//     return role === "admin" ? <Navigate to="/dashboard" /> : <Navigate to="/HomePage" />;
-//   }
+  if (onlyAdmin && (!user || user.role !== 'admin')) {
+    return <Navigate to="/homepage" replace />;
+  }
 
-//   return children ? children : <Outlet />;
-// };
+  return children;
+};
 
-// export default PrivateRoute;
+export default PrivateRoute;

@@ -4,79 +4,84 @@ namespace App\Http\Controllers;
 
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
-use App\Enums\Role;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rules\Enum;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     // Regjistrimi i përdoruesve
-   public function register(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'name' => 'required|string|max:255',
-        'email' => 'required|email|unique:users,email',
-        'password' => 'required|string|min:8|confirmed',
-        'phone' => 'nullable|string|max:20',
-        // Heqim 'role' nga validimi
-    ]);
+    public function register(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email',
+            'password' => 'required|string|min:8|confirmed',
+            'phone' => 'nullable|string|max:20',
+        ]);
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
+        if ($validator->fails()) {
+            return response()->json(['errors' => $validator->errors()], 422);
+        }
+
+        $validated = $validator->validated();
+
+        $user = User::create([
+            'name' => $validated['name'],
+            'email' => $validated['email'],
+            'password' => Hash::make($validated['password']),
+            'phone' => $validated['phone'] ?? null,
+            'role' => 'user',
+        ]);
+
+        $token = $user->createToken('api-token')->plainTextToken;
+
+        return response()->json([
+            'user' => $user,
+            'token' => $token,
+        ], 201);
     }
 
-    $validated = $validator->validated();
+    // Login i përdoruesve me session destroy (fshirje e tokenëve të mëparshëm)
+    public function login(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
 
-    $user = User::create([
-        'name' => $validated['name'],
-        'email' => $validated['email'],
-        // 'password' => Hash::make($validated['password']),
-        'password' => $validated['password'],
-        'phone' => $validated['phone'] ?? null,
-        'role' => 'user', // Vendosim gjithmonë rolin "user"
-    ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors()
+            ], 422);
+        }
 
-    $token = $user->createToken('api-token')->plainTextToken;
+        $user = User::where('email', $request->email)->first();
 
-    return response()->json([
-        'user' => $user,
-        'token' => $token,
-    ], 201);
-}
+        if (!$user) {
+            return response()->json([
+                'message' => 'Përdoruesi nuk u gjet.'
+            ], 404);
+        }
 
-    // Login i përdoruesve
- public function login(Request $request)
-{
-    $validator = Validator::make($request->all(), [
-        'email' => 'required|email',
-        'password' => 'required',
-    ]);
+        if (!Hash::check($request->password, $user->password)) {
+            return response()->json([
+                'message' => 'Të dhënat e hyrjes janë të pasakta. Fjalëkalimi nuk përputhet.'
+            ], 401);
+        }
 
-    if ($validator->fails()) {
-        return response()->json(['errors' => $validator->errors()], 422);
+        // Fshij të gjithë tokenët ekzistues (session destroy)
+        $user->tokens()->delete();
+
+        // Krijo një token të ri
+        $token = $user->createToken('auth_token')->plainTextToken;
+
+        return response()->json([
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'user' => $user,
+        ]);
     }
-
-    $user = User::where('email', $request->email)->first();
-
-    if (!$user) {
-        return response()->json(['message' => 'Përdoruesi nuk u gjet.'], 404);
-    }
-
-    if (!Hash::check($request->password, $user->password)) {
-        return response()->json(['message' => 'Fjalëkalimi nuk përputhet.'], 401);
-    }
-
-    $token = $user->createToken('auth_token')->plainTextToken;
-
-    return response()->json([
-        'access_token' => $token,
-        'token_type' => 'Bearer',
-        'user' => $user->toArray(),
-    ]);
-}
 
     // Logout
     public function logout(Request $request)

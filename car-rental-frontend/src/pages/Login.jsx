@@ -1,63 +1,66 @@
-// src/components/Login.js
-
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { FaCarSide } from "react-icons/fa";
+import api from "../api/axios"; // Përdor api me interceptor
 
 function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-useEffect(() => {
+
+  // Kontrollo nëse përdoruesi është i kyçur dhe ridrejto
+  useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
-      navigate("/");
+      const role = localStorage.getItem("role");
+      if (role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/HomePage");
+      }
     }
   }, [navigate]);
 
- const handleLogin = async (e) => {
-  e.preventDefault();
-  try {
-    const response = await axios.post("http://localhost:8000/api/login", {
-      email,
-      password,
-    });
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const response = await api.post("/login", {
+        email,
+        password,
+      });
 
-    const token = response.data.access_token;
-    const role = response.data.user.role;
+      const token = response.data.access_token;
+      const role = response.data.user.role;
+      const name = response.data.user.name;
+      const userEmail = response.data.user.email;
 
-    // Ruaj token dhe rolin
-    localStorage.setItem("token", token);
-    localStorage.setItem("role", role);
+      // Ruaj të dhënat në localStorage
+      localStorage.setItem("token", token);
+      localStorage.setItem("role", role);
+      localStorage.setItem("user", JSON.stringify({ name, email: userEmail }));
 
-    // Ridrejto sipas rolit
-    if (role === "admin") {
-      navigate("/dashboard");
-    } else {
-      navigate("/");
+      // Navigo sipas rolit
+      if (role === "admin") {
+        navigate("/dashboard");
+      } else {
+        navigate("/HomePage");
+      }
+    } catch (error) {
+      console.error("Login failed", error);
+      setError("Email ose fjalëkalim i pasaktë!");
     }
-  } catch (error) {
-    console.error("Login failed", error);
-    alert("Email ose fjalëkalim i pasaktë!");
-  }
-};
-
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-green-600 relative overflow-hidden px-4">
-      {/* Sfondi me veturë */}
       <img
         src="https://images.unsplash.com/photo-1503736334956-4c8f8e92946d?auto=format&fit=crop&w=1400&q=80"
         alt="Car background"
         className="absolute inset-0 w-full h-full object-cover opacity-20"
       />
-
-      {/* Overlay blur jeshil */}
       <div className="absolute inset-0 bg-green-600 bg-opacity-80 backdrop-blur-sm" />
 
-      {/* Forma */}
       <div className="z-10 bg-white p-8 rounded-3xl shadow-2xl w-full max-w-md animate-fadeIn">
         <div className="flex flex-col items-center mb-6">
           <div className="w-20 h-20 bg-green-100 text-green-600 flex items-center justify-center rounded-full shadow text-4xl">
@@ -95,9 +98,7 @@ useEffect(() => {
           </div>
 
           {error && (
-            <p className="text-red-600 text-center text-sm animate-shake">
-              {error}
-            </p>
+            <p className="text-red-600 text-center text-sm animate-shake">{error}</p>
           )}
 
           <button
@@ -109,56 +110,11 @@ useEffect(() => {
 
           <p className="text-sm text-center text-gray-600">
             Nuk ke llogari?{" "}
-            <Link
-              to="/register"
-              className="text-green-600 hover:underline font-medium"
-            >
+            <Link to="/register" className="text-green-600 hover:underline font-medium">
               Regjistrohu këtu
             </Link>
           </p>
 
-          {/* Butonat Social Login */}
-          <div className="mt-6 space-y-3">
-            <p className="text-sm text-center text-gray-500">Ose kyçu me:</p>
-
-            <div className="flex flex-col gap-3">
-              <button
-                type="button"
-                className="flex items-center justify-center gap-3 w-full bg-white border border-gray-300 text-gray-700 py-2 rounded-lg hover:shadow transition"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475656/google-color.svg"
-                  alt="https://www.google.co.uk/"
-                  className="w-5 h-5"
-                />
-                Google
-              </button>
-
-              <button
-                type="button"
-                className="flex items-center justify-center gap-3 w-full bg-[#1877F2] text-white py-2 rounded-lg hover:bg-[#145cca] transition"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/475700/facebook-color.svg"
-                  alt="Facebook"
-                  className="w-5 h-5 bg-white rounded-full"
-                />
-                Facebook
-              </button>
-
-              <button
-                type="button"
-                className="flex items-center justify-center gap-3 w-full bg-[#2F2F2F] text-white py-2 rounded-lg hover:bg-black transition"
-              >
-                <img
-                  src="https://www.svgrepo.com/show/473761/microsoft.svg"
-                  alt="Microsoft"
-                  className="w-5 h-5"
-                />
-                Microsoft
-              </button>
-            </div>
-          </div>
         </form>
 
         <p className="text-center text-xs text-gray-400 mt-6">

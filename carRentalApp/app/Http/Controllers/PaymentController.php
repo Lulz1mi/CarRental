@@ -5,8 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\DB;
-
 
 class PaymentController extends Controller
 {
@@ -54,41 +52,44 @@ class PaymentController extends Controller
 
     // Përditëso një pagesë ekzistuese
     public function update(Request $request, $id)
-{
-    $validator = Validator::make($request->all(), [
-        'rental_id' => 'required|integer',
-        'car_id' => 'required|integer',
-        'user_id' => 'required|integer',
-        'amount' => 'required|numeric|min:0',
-        'payment_method' => 'required|string|max:50',
-        'status' => 'required|string|max:50',
-    ]);
+    {
+        $payment = Payment::find($id);
 
-    if ($validator->fails()) {
-        return response()->json([
-            'message' => 'Validation failed',
-            'errors' => $validator->errors()
-        ], 422);
+        if (!$payment) {
+            return response()->json(['message' => 'Payment not found'], 404);
+        }
+
+        $validator = Validator::make($request->all(), [
+            'rental_id' => 'required|integer',
+            'car_id' => 'required|integer',
+            'user_id' => 'required|integer',
+            'amount' => 'required|numeric|min:0',
+            'payment_method' => 'required|string|max:50',
+            'status' => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $payment->update($validator->validated());
+
+        return response()->json($payment);
     }
-
-    $updated = DB::table('payments')->where('Payment_id', $id)->update($validator->validated());
-
-    return response()->json([
-        'message' => $updated ? 'Payment updated successfully' : 'Update failed',
-        'updated' => $updated
-    ]);
-}
-
 
     // Fshij një pagesë
-    public function destroy($Payment_id)
-{
-    $deleted = DB::table('payments')->where('Payment_id', $Payment_id)->delete();
+    public function destroy($id)
+    {
+        $payment = Payment::find($id);
 
-    if ($deleted) {
+        if (!$payment) {
+            return response()->json(['message' => 'Payment not found'], 404);
+        }
+
+        $payment->delete();
+
         return response()->json(['message' => 'Payment deleted successfully']);
-    } else {
-        return response()->json(['message' => 'Payment not found or not deleted'], 404);
     }
-}
 }

@@ -8,21 +8,25 @@ use App\Http\Controllers\CarController;
 |--------------------------------------------------------------------------
 | Public Routes
 |--------------------------------------------------------------------------
-| Rrugët që mund të përdoren pa autentikim.
 */
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
+// Public route për të marrë listën e makinave
+Route::get('/cars', [CarController::class, 'index']);
+Route::get('/cars/{car}', [CarController::class, 'show']);
+
+// Public route për të shtuar, ndryshuar dhe fshirë makina
+Route::post('/cars', [CarController::class, 'store']); // Për të shtuar makinë
+Route::put('/cars/{car}', [CarController::class, 'update']); // Për të ndryshuar makinë
+Route::delete('/cars/{id}', [CarController::class, 'destroy']);
+ // Për të fshirë makinë
+
 /*
 |--------------------------------------------------------------------------
-| Protected Routes (Require Auth via Sanctum)
+| Routes për Logout dhe Profile
 |--------------------------------------------------------------------------
-| Këto kërkojnë autentikim përmes token-it të Sanctum.
 */
-Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/profile', [AuthController::class, 'profile']);
-
-    // API resource routes për makina (protected)
-    Route::apiResource('cars', CarController::class);
-});
+// Për logout dhe profile nuk është e nevojshme autentifikimi
+Route::post('/logout', [AuthController::class, 'logout']);
+Route::middleware('auth:sanctum')->get('/profile', [AuthController::class, 'profile']);
