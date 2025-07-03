@@ -4,7 +4,7 @@ namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Contracts\Foundation\MaintenanceMode as MaintenanceModeContract;
-use Illuminate\Foundation\MaintenanceMode\FileMaintenanceMode;
+use Illuminate\Foundation\FileBasedMaintenanceMode;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -14,7 +14,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(MaintenanceModeContract::class, function ($app) {
-            return new FileMaintenanceMode($app->storagePath());
+            return new FileBasedMaintenanceMode($app->storagePath());
         });
     }
 

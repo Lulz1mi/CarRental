@@ -4,82 +4,107 @@ namespace App\Http\Controllers;
 
 use App\Models\Car;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 
 class CarController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+    // Merr të gjitha veturat
     public function index()
     {
-        // Kthen të gjitha makinat nga databaza
-        return Car::all();
+        $cars = Car::all();
+        return response()->json($cars);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Ruaj një veturë të re
     public function store(Request $request)
     {
-        // Validimi i të dhënave të dërguara nga klienti
-        $data = $request->validate([
-            'Brand'         => 'required|string',
-            'Model'         => 'required|string',
-            'Year'          => 'required|integer',
-            'price_per_day' => 'required|numeric',
-            'fuel_type'     => 'required|string',
-            'transmission'  => 'required|string',
-            'image_url'     => 'nullable|url',
+        $validator = Validator::make($request->all(), [
+            'brand' => 'required|string|max:255',         // Ndryshimi nga 'Brand' në 'brand'
+            'model' => 'required|string|max:255',         // Ndryshimi nga 'Model' në 'model'
+            'year' => 'required|integer|min:1900|max:' . date('Y'),
+            'price_per_day' => 'required|numeric|min:0',
+            'fuel_type' => 'required|string|max:50',
+            'transmission' => 'required|string|max:50',
+            'image_url' => 'nullable|url',
         ]);
+        
 
-        // Krijo një makinë të re dhe ruaj në databazë
-        return Car::create($data);
+        if ($validator->fails()) {
+            return response()->json([
+                'errors' => $validator->errors(),
+            ], 422);
+        }
+
+        $car = Car::create($validator->validated());
+
+        return response()->json($car, 201);
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Shfaq një veturë sipas ID-së
+    public function show($id)
     {
-        // Kërko makinën me id dhe ktheje
-        $car = Car::findOrFail($id); // Kërkon makinën ose kthen 404 nëse nuk e gjen
-        return $car;
+        $car = Car::find($id);
+
+        if (!$car) {
+            return response()->json(['message' => 'Car not found'], 404);
+        }
+
+        return response()->json($car);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        // Validimi i të dhënave të reja për makinë
-        $data = $request->validate([
-            'Brand'         => 'sometimes|required|string',
-            'Model'         => 'sometimes|required|string',
-            'Year'          => 'sometimes|required|integer',
-            'price_per_day' => 'sometimes|required|numeric',
-            'fuel_type'     => 'sometimes|required|string',
-            'transmission'  => 'sometimes|required|string',
-            'image_url'     => 'nullable|url',
-        ]);
+    // Përditëso një veturë ekzistuese
+    public function update(Request $request, $id)
+{
+    $updated = DB::table('cars')->where('id', $id)->update([
+        'brand' => $request->brand,
+        'model' => $request->model,
+        'year' => $request->year,
+        'price_per_day' => $request->price_per_day,
+        'fuel_type' => $request->fuel_type,
+        'transmission' => $request->transmission,
+        'image_url' => $request->image_url,
+    ]);
 
-        // Kërko makinën me ID dhe përditësoje
-        $car = Car::findOrFail($id);
-        $car->update($data);
+    return response()->json([
+        'message' => $updated ? 'Car updated successfully' : 'Update failed',
+        'updated' => $updated
+    ]);
+}
 
-        // Kthe makinën e përditësuar
-        return $car;
+
+    // Fshij një veturë
+// public function destroy($id)
+// {
+//     $car = Car::find($id);
+
+//     if (!$car) {
+//         return response()->json(['message' => 'Car not found'], 404);
+//     }
+
+//     try {
+//         // Fshirje e përhershme nëse ka SoftDeletes
+//         $car->forceDelete();
+
+//         return response()->json(['message' => 'Car deleted successfully']);
+//     } catch (\Exception $e) {
+//         // Logojmë gabimin në log file për analizë
+//         Log::error('Car deletion failed: '.$e->getMessage());
+
+//         return response()->json([
+//             'message' => 'Failed to delete car',
+//             'error' => $e->getMessage()
+//         ], 500);
+//     }
+// }
+public function destroy($id)
+{
+    $deleted = DB::table('cars')->where('id', $id)->delete();
+
+    if ($deleted) {
+        return response()->json(['message' => 'Car deleted successfully']);
+    } else {
+        return response()->json(['message' => 'Car not found or not deleted'], 404);
     }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        // Kërko makinën me ID dhe fshije
-        $car = Car::findOrFail($id);
-        $car->delete();
-
-        // Kthe një përgjigje të suksesshme
-        return response()->json(['message' => 'Car deleted successfully'], 200);
-    }
+}
 }

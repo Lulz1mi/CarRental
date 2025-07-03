@@ -3,7 +3,7 @@ import { createCar, updateCar } from "../services/carService";
 
 export default function CarForm({ loadCars, selectedCar, setSelectedCar }) {
   const [formData, setFormData] = useState({
-    name: "",
+    brand: "",
     model: "",
     year: "",
   });
@@ -11,9 +11,9 @@ export default function CarForm({ loadCars, selectedCar, setSelectedCar }) {
   useEffect(() => {
     if (selectedCar) {
       setFormData({
-        name: selectedCar.name,
-        model: selectedCar.model,
-        year: selectedCar.year,
+        brand: selectedCar.brand || "",
+        model: selectedCar.model || "",
+        year: selectedCar.year || "",
       });
     }
   }, [selectedCar]);
@@ -26,7 +26,7 @@ export default function CarForm({ loadCars, selectedCar, setSelectedCar }) {
     } else {
       await createCar(formData);
     }
-    setFormData({ name: "", model: "", year: "" });
+    setFormData({ brand: "", model: "", year: "" });
     loadCars();
   };
 
@@ -35,14 +35,18 @@ export default function CarForm({ loadCars, selectedCar, setSelectedCar }) {
       <h2 className="text-xl font-bold mb-4">{selectedCar ? "Ndrysho Makinën" : "Shto Makinë"}</h2>
       <div className="flex flex-col gap-4">
         <input
+          id="brand"
+          name="brand"
           type="text"
-          placeholder="Emri"
-          value={formData.name}
-          onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+          placeholder="Marka"
+          value={formData.brand}
+          onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
           className="border p-2 rounded"
           required
         />
         <input
+          id="model"
+          name="model"
           type="text"
           placeholder="Modeli"
           value={formData.model}
@@ -51,6 +55,8 @@ export default function CarForm({ loadCars, selectedCar, setSelectedCar }) {
           required
         />
         <input
+          id="year"
+          name="year"
           type="number"
           placeholder="Viti"
           value={formData.year}

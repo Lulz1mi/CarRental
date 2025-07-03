@@ -119,9 +119,8 @@ return [
     */
 
     'maintenance' => [
-    'driver' => 'file',
-],
-
+        'driver' => 'file',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -138,6 +137,7 @@ return [
         Illuminate\Bus\BusServiceProvider::class,
         Illuminate\Cache\CacheServiceProvider::class,
         Illuminate\Foundation\Providers\ConsoleSupportServiceProvider::class,
+        Illuminate\Database\DatabaseServiceProvider::class,   // ← Shtoje këtë rresht
         Illuminate\Encryption\EncryptionServiceProvider::class,
         Illuminate\Filesystem\FilesystemServiceProvider::class,
         Illuminate\Hashing\HashServiceProvider::class,
@@ -160,6 +160,7 @@ return [
         App\Providers\AuthServiceProvider::class,
         App\Providers\EventServiceProvider::class,
         App\Providers\RouteServiceProvider::class,    // ← Këtu, sigurohuni që është i pranishëm
+        Illuminate\Cookie\CookieServiceProvider::class,
 
     ],
 
@@ -183,7 +184,7 @@ return [
         'Bus' => Illuminate\Support\Facades\Bus::class,
         'Cache' => Illuminate\Support\Facades\Cache::class,
         'Config' => Illuminate\Support\Facades\Config::class,
-        'Cookie' => Illuminate\Support\Facades\Cookie::class,
+        // 'Cookie' => Illuminate\Support\Facades\Cookie::class,
         'Crypt' => Illuminate\Support\Facades\Crypt::class,
         'DB' => Illuminate\Support\Facades\DB::class,
         'Eloquent' => Illuminate\Database\Eloquent\Model::class,
