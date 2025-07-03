@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { FaCarSide } from 'react-icons/fa';
 
 const CarUpdate = ({ show, handleClose, selectedCar, setCars }) => {
   const [formData, setFormData] = useState({
@@ -9,7 +10,11 @@ const CarUpdate = ({ show, handleClose, selectedCar, setCars }) => {
     price_per_day: '',
     fuel_type: '',
     transmission: '',
+    image_url: '',
   });
+
+  const [error, setError] = useState(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     if (selectedCar) {
@@ -20,6 +25,7 @@ const CarUpdate = ({ show, handleClose, selectedCar, setCars }) => {
         price_per_day: selectedCar.price_per_day || '',
         fuel_type: selectedCar.fuel_type || '',
         transmission: selectedCar.transmission || '',
+        image_url: selectedCar.image_url || '',
       });
     }
   }, [selectedCar]);
@@ -30,79 +36,107 @@ const CarUpdate = ({ show, handleClose, selectedCar, setCars }) => {
   };
 
   const handleUpdate = async () => {
-    const requiredFields = ['brand', 'model', 'year', 'price_per_day', 'fuel_type', 'transmission'];
-    const emptyFields = requiredFields.filter((field) => !formData[field]);
-
-    if (emptyFields.length > 0) {
-      alert("Ju lutem plotësoni të gjitha fushat.");
-      return;
-    }
-
-    if (!selectedCar?.id) {
-      console.error("Mungon ID e makinës për përditësim.");
-      return;
-    }
-
+    setIsSubmitting(true);
+    setError(null);
     try {
-      await axios.put(`http://localhost:8000/api/cars/${selectedCar.id}`, formData);
-      const updatedCars = await axios.get('http://localhost:8000/api/cars');
-      setCars(updatedCars.data);
+      const response = await axios.put(
+        `http://localhost:8000/api/cars/${selectedCar.Id}`,
+        formData
+      );
+      setCars((prevCars) =>
+        prevCars.map((car) =>
+          car.Id === selectedCar.Id ? response.data : car
+        )
+      );
       handleClose();
     } catch (error) {
-      console.error('Gabim gjatë përditësimit të makinës:', error.response?.data || error.message);
+      setError(
+        error.response?.data?.message || error.message || 'Gabim gjatë përditësimit.'
+      );
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   if (!show) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white rounded-xl shadow-lg w-full max-w-lg p-6 relative">
-        <h2 className="text-2xl font-semibold mb-4 text-center text-[#2b386e]">Përditëso Makinën</h2>
-        <button
-          onClick={handleClose}
-          className="absolute top-4 right-4 text-gray-500 hover:text-red-500 text-xl font-bold"
-        >
-          &times;
-        </button>
+    <div className="fixed inset-0 bg-black bg-opacity-40 backdrop-blur-sm flex items-center justify-center z-50">
+      <div className="bg-white w-full max-w-xl rounded-3xl shadow-2xl p-8 relative animate-fadeIn">
+        {/* Ikonë dhe titull */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-20 h-20 bg-green-100 text-green-600 flex items-center justify-center rounded-full shadow text-3xl">
+            <FaCarSide />
+          </div>
+          <h2 className="text-2xl font-bold mt-4 text-green-700">Përditëso Makinën</h2>
+          <p className="text-sm text-gray-500">Modifiko detajet më poshtë</p>
+        </div>
 
-        <div className="space-y-4">
+        {/* Mesazh gabimi */}
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded-lg text-center font-medium animate-shake">
+            {error}
+          </div>
+        )}
+
+        {/* Forma */}
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleUpdate();
+          }}
+          className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+        >
           {[
-            { label: 'Brand', name: 'brand' },
-            { label: 'Model', name: 'model' },
-            { label: 'Year', name: 'year', type: 'number' },
-            { label: 'Price Per Day', name: 'price_per_day', type: 'number' },
-            { label: 'Fuel Type', name: 'fuel_type' },
-            { label: 'Transmission', name: 'transmission' }
-          ].map(({ label, name, type = 'text' }, index) => (
-            <div key={name}>
-              <label htmlFor={`${name}-${index}`} className="block font-medium mb-1">{label}:</label>
+            { label: 'Marka', name: 'brand' },
+            { label: 'Modeli', name: 'model' },
+            { label: 'Viti', name: 'year', type: 'number' },
+            { label: 'Çmimi/ditë (€)', name: 'price_per_day', type: 'number' },
+            { label: 'Tipi i Karburantit', name: 'fuel_type' },
+            { label: 'Transmisioni', name: 'transmission' },
+            { label: 'URL e Imazhit', name: 'image_url', fullWidth: true },
+          ].map(({ label, name, type = 'text', fullWidth }) => (
+            <div key={name} className={fullWidth ? 'sm:col-span-2' : ''}>
+              <label
+                htmlFor={name}
+                className="block text-gray-700 font-medium mb-1"
+              >
+                {label}
+              </label>
               <input
                 type={type}
-                id={`${name}-${index}`}
+                id={name}
                 name={name}
                 value={formData[name]}
                 onChange={handleChange}
-                className="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#2b386e]"
+                required={name !== 'image_url'}
+                className="w-full rounded-lg border border-gray-300 px-4 py-2
+                  focus:outline-none focus:ring-2 focus:ring-green-600
+                  transition-shadow duration-300 shadow-sm hover:shadow-md placeholder-gray-400"
+                placeholder={`Shkruaj ${label.toLowerCase()}`}
               />
             </div>
           ))}
-        </div>
 
-        <div className="mt-6 flex justify-end space-x-3">
-          <button
-            onClick={handleClose}
-            className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
-          >
-            Mbyll
-          </button>
-          <button
-            onClick={handleUpdate}
-            className="px-4 py-2 rounded-lg bg-[#2b386e] text-white hover:bg-[#1f2c5e]"
-          >
-            Ruaj
-          </button>
-        </div>
+          {/* Butonat */}
+          <div className="sm:col-span-2 flex justify-end gap-4 mt-6">
+            <button
+              type="button"
+              onClick={handleClose}
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-gray-300 text-gray-700 font-semibold rounded-lg hover:bg-gray-400 transition disabled:opacity-50"
+            >
+              Anulo
+            </button>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="px-6 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition disabled:opacity-50"
+            >
+              {isSubmitting ? 'Duke ruajtur...' : 'Ruaj'}
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );

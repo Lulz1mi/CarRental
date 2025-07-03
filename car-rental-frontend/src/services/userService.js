@@ -1,11 +1,14 @@
-import axios from "axios";
+// src/services/userService.js
+import api from "../api/axios"; // përdor api me interceptor, jo axios direkt
 
-// Merr të gjithë përdoruesit nga Laravel API
 export const getUsers = () => {
-  return axios.get("http://localhost:8000/api/users");
+  return api.get("/users");
 };
 
-// (Opsional) Fshij përdorues me ID nga Laravel API (supozo që ke krijuar endpointin për DELETE)
 export const deleteUser = (id) => {
-  return axios.delete(`http://localhost:8000/api/users/${id}`);
+  return api.delete(`/users/${id}`);
+};
+
+export const createUser = (data) => {
+  return api.post("/users", data);
 };

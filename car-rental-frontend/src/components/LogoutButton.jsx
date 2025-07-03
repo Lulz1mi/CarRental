@@ -1,8 +1,8 @@
+import { useNavigate } from 'react-router-dom';
 import { logout } from '../api/auth';
-import { useHistory } from 'react-router-dom';
 
 function LogoutButton() {
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
     const token = localStorage.getItem('token');
@@ -12,7 +12,8 @@ function LogoutButton() {
       console.error('Logout failed:', e);
     }
     localStorage.removeItem('token');
-    history.push('/login');
+    localStorage.removeItem('user');
+    navigate('/login', { replace: true });
   };
 
   return <button onClick={handleLogout}>Logout</button>;
